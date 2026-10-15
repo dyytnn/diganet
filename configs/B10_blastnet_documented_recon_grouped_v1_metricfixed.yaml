@@ -1,0 +1,59 @@
+# B10 documented reconstruction of BLAST-Net (Rad et al., ICIP 2019,
+# DOI: 10.1109/ICIP.2019.8803139). Inherits B0's fixed grouped protocol.
+# Changed only architecture: ResNet-50 + CAPP (rates 1,2,4,8,16) + dense
+# progressive PixelShuffle decoder. Undisclosed paper details are explicit
+# below; this is not represented as an official-source reproduction.
+seed: 0
+allow_random_split: false
+run_dir: runs/B10_blastnet_documented_recon_grouped_v1_metricfixed
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  in_channels: 3
+  mask_classes: [zp, te, bl, icm]
+  augmentation: default
+model:
+  name: blastnet_reconstruction
+  in_channels: 3
+  num_classes: 5
+  stem_channels: 64
+  stem_kernel_size: 7
+  stem_stride: 2
+  pool_kernel_size: 3
+  pool_stride: 2
+  stage_planes: [64, 128, 256, 512]
+  stage_blocks: [3, 4, 6, 3]
+  stage_strides: [1, 2, 2, 1]
+  stage_dilations: [1, 1, 1, 2]
+  bottleneck_expansion: 4
+  capp_channels: 256
+  capp_rates: [1, 2, 4, 8, 16]
+  capp_kernel_size: 3
+  decoder_channels: [256, 128, 64, 32]
+  upsample_factor: 2
+  decoder_kernel_size: 3
+loss:
+  name: combined
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  relation_weight: 0.0
+  class_boundary_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  overlap_metric: jaccard
+  overlap_include_background: true
+training:
+  epochs: 2000
+  batch_size: 8
+  num_workers: 2
+  optimizer: adam
+  lr: 0.0008
+  lr_policy: poly
+  poly_power: 0.9
+  weight_decay: 0.0005
+  patience: 100
+  monitor: miou_fg
+  monitor_mode: max

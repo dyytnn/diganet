@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "source_extraction": "dataset/annotation_reconstruction_v5",
+  "source_manifest_sha256": "1344deaafa4534f75345811bc43c5cc8020d2cf5e77346dae848af8b807386a4",
+  "review_date": "2026-09-15",
+  "reviewer": {
+    "identity": "OpenAI Codex",
+    "role": "AI-assisted technical digitization reviewer",
+    "domain_expert": false
+  },
+  "scope": "Visual fidelity of scan registration, recovered pen contours, and filled draft regions only",
+  "decision": "technical_accept_all",
+  "expected_images": 50,
+  "expected_panels": 150,
+  "accepted_structures": ["ZP", "TE", "ICM"],
+  "review_evidence": {
+    "all_v4_contact_sheets_reviewed": 13,
+    "all_v4_panels_reviewed": 150,
+    "v5_radial_reconstructions_individually_reviewed": 11,
+    "v5_filled_overlay_index": "dataset/annotation_reconstruction_v5/overlay_3class_filled/index.html"
+  },
+  "reference_masks_viewed_during_geometry_review": false,
+  "aggregate_v4_draft_scores_known": true,
+  "human_approved": false,
+  "annotator_metadata_complete": false,
+  "te_boundary_interpretation_confirmed_by_annotator": false,
+  "notes": [
+    "Every V5 candidate is nonempty and visually follows the recovered pen evidence.",
+    "Technical acceptance does not replace approval by the original annotator or a qualified embryologist.",
+    "No panel was excluded using agreement scores; accepting all panels avoids QC-based easy-case selection."
+  ]
+}

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "diganet"
+version = "0.1.0"
+description = "DiGA-Net: lightweight blastocyst segmentation at the limit set by label boundary ambiguity"
+requires-python = ">=3.10"
+dependencies = ["torch", "numpy", "Pillow", "PyYAML", "scipy", "ml-collections"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100

@@ -1,0 +1,40 @@
+# S8: inherits S5_deep_supervision and changes only input resolution, batch size,
+# and learning rate. Hypothesis: 384px preserves thin ZP/TE boundaries lost at 256px.
+seed: 0
+allow_random_split: false
+run_dir: runs/S8_highres
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 384
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 16
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  boundary_weight: 0.2
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [0.15, 2.0, 1.5, 0.8, 0.8]
+  tversky_beta: 0.7
+  label_smoothing: 0.05
+training:
+  epochs: 150
+  batch_size: 4
+  num_workers: 2
+  lr: 0.00015
+  weight_decay: 0.0005
+  patience: 20

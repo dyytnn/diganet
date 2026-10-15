@@ -1,0 +1,42 @@
+# S7: inherits S5_deep_supervision on the grouped split; changes only class-loss
+# weights to target the protocol's priority classes TE and ICM.
+# Hypothesis: the previous weights under-penalized rare ICM/TE errors and
+# over-emphasized ZP, so inverse-sqrt-frequency weights should reduce confusion.
+seed: 0
+allow_random_split: false
+run_dir: runs/S7_priority_loss
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 24
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  boundary_weight: 0.2
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [0.1, 2.2, 2.6, 1.5, 3.2]
+  tversky_beta: 0.7
+  label_smoothing: 0.05
+training:
+  epochs: 150
+  batch_size: 8
+  num_workers: 2
+  lr: 0.0002
+  weight_decay: 0.0005
+  patience: 20

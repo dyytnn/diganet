@@ -1,0 +1,28 @@
+seed: 0
+allow_random_split: false
+run_dir: runs/B0
+data:
+  image_dir: /data/tannd/SSLData/discriminative_data/blastocyst/source/images
+  mask_root: /data/tannd/SSLData/discriminative_data/blastocyst/source/masks
+  split_json: data/splits/source_nested.json
+  image_size: 256
+  num_classes: 4
+  mask_classes: [icm, te, zp]
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 24
+  attention: false
+  multimodal: false
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  relation_weight: 0.0
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 2
+  lr: 0.0003
+  weight_decay: 0.0001
+  patience: 30

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Code Ocean entry point. Invoked as /code/run with /code as the working directory.
+#
+# Regenerates every figure and table of both manuscripts from the released result files.
+# Needs no GPU and no image data: the 249 Hoffman-modulation-contrast images of Saeedi et al.
+# belong to their original authors and are not redistributed here, so this capsule starts from
+# the per-image score tables that the trained models produced.
+set -euo pipefail
+
+export PYTHONPATH=/code/src
+export MPLBACKEND=Agg
+
+echo "== installing the package in place"
+pip install --no-deps -e /code
+
+echo "== restoring the stored predictions (needed by tests 4-5 of the diagnostic)"
+if [ -f /code/results/paper/preds.tar.zst ] && [ ! -d /code/results/paper/preds ]; then
+  tar -xf /code/results/paper/preds.tar.zst -C /code/results/paper
+fi
+
+echo "== figures and tables"
+bash /code/scripts/reproduce_paper.sh --figures
+
+echo "== five-test diagnostic on trophectoderm"
+python /code/scripts/paper/benchmark_diagnostic.py \
+  --scores /code/results/paper/per_image_iou.csv --cls TE \
+  --preds /code/results/paper/preds --gt /code/results/paper/preds/gt.npy \
+  --out /results/benchmark_diagnostic_TE.json
+
+echo "== collecting outputs into /results"
+mkdir -p /results/figures /results/tables
+cp -f /code/figures/paper/*.png /results/figures/ 2>/dev/null || true
+cp -f /code/figures/paper/*.pdf /results/figures/ 2>/dev/null || true
+cp -f /code/results/paper/*.csv /results/tables/
+cp -f /code/results/paper/*.json /results/tables/
+
+echo "== done: $(ls /results/figures | wc -l) figures, $(ls /results/tables | wc -l) tables"

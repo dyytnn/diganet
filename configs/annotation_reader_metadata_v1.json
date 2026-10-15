@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-09-15",
+  "provenance": "Author confirmation recorded during the manuscript audit",
+  "reader": {
+    "role": "experienced laboratory professional",
+    "experience": "multiple years of laboratory annotation experience",
+    "exact_years_recorded": false,
+    "formal_embryologist_credential_claimed": false
+  },
+  "annotation_conditions": {
+    "independent_reading": true,
+    "fully_blinded_during_annotation": true,
+    "released_annotation_visible": false,
+    "model_predictions_visible": false,
+    "model_performance_or_agreement_scores_visible": false
+  },
+  "scope": {
+    "images": 50,
+    "classes": [
+      "ZP",
+      "TE",
+      "ICM"
+    ]
+  }
+}

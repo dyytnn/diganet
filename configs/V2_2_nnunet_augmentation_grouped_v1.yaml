@@ -1,0 +1,57 @@
+# V2-2: inherits V2_0_recipe_parity_grouped_v1.
+# Sole change: data.augmentation default (rot90/flips/brightness) -> nnunet policy with the
+# full nnU-Net v2 default parameters spelled out (rotation +-180, scale, mirror, noise, blur,
+# brightness, contrast, low-res simulation, gamma; elastic off).
+# Hypothesis: V2-0 overfits (train loss falls while val loss rises after ~75 epochs);
+# heavy augmentation is the regularisation nnU-Net relies on.
+seed: 0
+allow_random_split: false
+run_dir: runs/V2_2_nnunet_augmentation_grouped_v1
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 384
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+  augmentation: nnunet
+  augmentation_params:
+    p_rotation: 0.2
+    rotation_deg: 180.0
+    p_scale: 0.2
+    scale_range: [0.7, 1.4]
+    p_elastic: 0.0
+    elastic_alpha_px: [0.0, 8.0]
+    elastic_grid: 4
+    p_mirror_x: 0.5
+    p_mirror_y: 0.5
+    p_gaussian_noise: 0.1
+    noise_std_range: [0.0, 0.05]
+    p_gaussian_blur: 0.2
+    blur_sigma_range: [0.5, 1.0]
+    p_brightness: 0.15
+    brightness_range: [0.75, 1.25]
+    p_contrast: 0.15
+    contrast_range: [0.75, 1.25]
+    p_lowres: 0.25
+    lowres_zoom_range: [0.5, 1.0]
+    p_gamma: 0.3
+    p_gamma_inverted: 0.1
+    gamma_range: [0.7, 1.5]
+model: {name: matblast_unet, in_channels: 3, base_channels: 48, dropout: 0.1, global_context: true, global_pool_size: 8,
+  pyramid_context: false, residual_encoder_block: true, residual_expansion: 2, residual_dropout: 0.0,
+  attention: false, multimodal: false, deep_supervision: true, class_boundary: false}
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+training: {epochs: 2000, batch_size: 8, num_workers: 2, lr: 0.0008, lr_policy: poly, poly_power: 0.9,
+  weight_decay: 0.0005, patience: 150, monitor: miou_fg, monitor_mode: max}

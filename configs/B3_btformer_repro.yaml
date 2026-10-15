@@ -1,0 +1,37 @@
+# B3: faithful BTFormer reimplementation; source_nested is the existing
+# 199/50 image split. Change from no prior config: paper architecture/loss/DA.
+# Hypothesis: angle-wise global context improves long-range compartment cues.
+seed: 0
+allow_random_split: false
+run_dir: runs/B3_btformer_repro
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_nested.json
+  image_size: 256
+  num_classes: 5
+  in_channels: 1
+  mask_classes: [zp, te, bl, icm]
+  augmentation: paper
+model:
+  name: btformer
+  in_channels: 1
+  num_classes: 5
+  base_channels: 16
+  n_angles: 4
+  pos_encoding: true
+loss:
+  name: btformer_wsja
+  minimum_class_weights: [1.0, 0.8]
+training:
+  epochs: 2000
+  batch_size: 8
+  num_workers: 2
+  optimizer: adam
+  lr: 0.0008
+  weight_decay: 0.0005
+  lr_policy: poly
+  poly_power: 0.9
+  patience: 2000
+  monitor: mdice_fg
+  monitor_mode: max

@@ -1,0 +1,40 @@
+# B12-v1: segmentation-path reconstruction of Blasto-Net (arXiv:2606.25463).
+# The paper's EfficientNet-B3 + CBAM + EAAM segmentation path is reproduced
+# on the frozen grouped split. Grading and implantation heads are excluded
+# because this repository contains no labels for those tasks.
+seed: 0
+allow_random_split: false
+run_dir: runs/B12_blasto_net_segmentation_grouped_v1_metricfixed
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: blasto_net_segmentation
+  in_channels: 3
+  num_classes: 5
+loss:
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  overlap_metric: jaccard
+  overlap_include_background: true
+training:
+  epochs: 2000
+  batch_size: 8
+  num_workers: 2
+  optimizer: adam
+  lr: 0.0008
+  lr_policy: poly
+  poly_power: 0.9
+  weight_decay: 0.0005
+  patience: 100
+  monitor: miou_fg
+  monitor_mode: max
+

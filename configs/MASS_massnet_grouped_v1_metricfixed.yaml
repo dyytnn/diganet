@@ -1,0 +1,47 @@
+# MASS-Net reconstruction: Table 1 architecture from Arsalan et al. with the
+# common grouped split. Paper training choices are explicit below; only the
+# split differs to keep the benchmark fair with the other reproduced models.
+seed: 0
+allow_random_split: false
+# A previous prototype was stopped before comparison. Keep this faithful
+# Table-1 reconstruction in a new immutable run directory.
+run_dir: runs/MASS_massnet_table1_grouped_v1_metricfixed
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 400
+  num_classes: 5
+  in_channels: 1
+  mask_classes: [zp, te, bl, icm]
+  augmentation: massnet
+  augmentation_repeats: 16
+  input_representation: global_l2
+model:
+  name: massnet
+  in_channels: 1
+  num_classes: 5
+loss:
+  name: combined
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: 0.5
+  label_smoothing: 0.0
+  overlap_metric: dice
+  overlap_include_background: true
+training:
+  epochs: 40
+  batch_size: 20
+  num_workers: 2
+  optimizer: adam
+  lr: 0.0001
+  optimizer_eps: 0.000001
+  weight_decay: 0.0
+  lr_policy: constant
+  patience: 40
+  monitor: miou_fg
+  monitor_mode: max

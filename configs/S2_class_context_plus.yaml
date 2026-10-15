@@ -1,0 +1,37 @@
+# Inherits S1 global-context plus; adds soft class-context refinement.
+seed: 0
+allow_random_split: false
+run_dir: runs/S2_class_context_plus
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_nested.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [icm, te, zp, bl]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 16
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  class_context: true
+  attention: false
+  multimodal: false
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  boundary_weight: 0.2
+  relation_weight: 0.0
+  class_weights: [0.15, 2.0, 1.5, 0.8, 0.8]
+  tversky_beta: 0.7
+  label_smoothing: 0.05
+training:
+  epochs: 150
+  batch_size: 8
+  num_workers: 2
+  lr: 0.0002
+  weight_decay: 0.0005
+  patience: 20

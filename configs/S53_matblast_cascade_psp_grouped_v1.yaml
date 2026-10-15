@@ -1,0 +1,53 @@
+# S53-v1: inherits S24_pyramid_context_grouped_v1_metricfixed.
+# Sole architecture change: CascadePSP-lite - one shared residual refinement CNN (image + softmax)
+# is applied globally at half resolution and then on 8 full-resolution 64x64 patches centred on
+# the most uncertain ZP/TE/ICM regions; patch outputs are pasted back. The global pass is
+# supervised as refine_logits_1 (loss.refine_loss_weight). Memory is bounded by patch size/count.
+# Inspired/proxy: no perturbed-mask pretraining and no separate refinement network.
+# Hypothesis: a cascade of coarse then local refinement improves boundary metrics (HD95,
+# Boundary-F) while keeping the interior prediction stable.
+seed: 0
+allow_random_split: false
+run_dir: runs/S53_matblast_cascade_psp_grouped_v1
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 24
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  pyramid_context: true
+  pyramid_dilations: [1, 2, 4, 8]
+  pyramid_reduction: 4
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+  cascade_psp: true
+  cascade_hidden_channels: 32
+  cascade_global_scale: 0.5
+  cascade_patch_size: 64
+  cascade_num_patches: 8
+  cascade_classes_of_interest: [1, 2, 4]
+loss:
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+  refine_loss_weight: 0.5
+training: {epochs: 2000, batch_size: 8, num_workers: 2, lr: 0.0008, lr_policy: poly, poly_power: 0.9,
+  weight_decay: 0.0005, patience: 100, monitor: miou_fg, monitor_mode: max}

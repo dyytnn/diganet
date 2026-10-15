@@ -1,0 +1,41 @@
+# B5-v2: inherits B5_mimics_net_repro.yaml.
+# Changed only the epoch budget for a fair update-count comparison: 199 train
+# images x 16 deterministic augmentations / batch 4 = 796 updates per epoch;
+# 64 epochs = 50,944 updates, close to B3/B4's 49,750 updates.
+seed: 0
+allow_random_split: false
+run_dir: runs/B5_mimics_net_repro_v2
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_nested.json
+  image_size: 400
+  num_classes: 5
+  in_channels: 1
+  mask_classes: [zp, te, bl, icm]
+  augmentation: mimics
+  augmentation_repeats: 16
+model:
+  name: mimics_net
+  in_channels: 1
+  num_classes: 5
+  base_channels: 24
+  groups: 4
+  gabor_kernel_size: 9
+  gabor_sigma: 2.0
+  gabor_wavelength: 5.0
+  gabor_gamma: 0.5
+loss:
+  name: mimics_generalized_dice
+training:
+  epochs: 64
+  # The paper does not report mini-batch size; 4 fits the 400x400 reproduction.
+  batch_size: 4
+  num_workers: 2
+  optimizer: adam
+  lr: 0.001
+  weight_decay: 0.0005
+  lr_policy: constant
+  patience: 64
+  monitor: mdice_fg
+  monitor_mode: max

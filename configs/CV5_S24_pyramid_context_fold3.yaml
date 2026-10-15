@@ -1,0 +1,44 @@
+# CV5_S24_pyramid_context_fold3: frozen copy of S24_pyramid_context_grouped_v1_metricfixed.yaml; only data.split_json/data.fold changed for 5-fold CV.
+# S24-v1: inherits S9_wsja_grouped_v2_metricfixed. The sole experimental
+# change is multi-scale pyramid context at the bottleneck. Hypothesis: dilated
+# receptive fields recover TE/ICM context and thin ZP without changing loss,
+# data, or optimisation protocol.
+seed: 0
+allow_random_split: false
+run_dir: runs/CV5_S24_pyramid_context_fold3
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_5fold_v1.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+  fold: 3
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 24
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  pyramid_context: true
+  pyramid_dilations: [1, 2, 4, 8]
+  pyramid_reduction: 4
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+loss:
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+training: {epochs: 2000, batch_size: 8, num_workers: 2, lr: 0.0008, lr_policy: poly, poly_power: 0.9,
+  weight_decay: 0.0005, patience: 100, monitor: miou_fg, monitor_mode: max}

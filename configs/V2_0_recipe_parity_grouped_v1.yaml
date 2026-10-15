@@ -1,0 +1,73 @@
+# V2-0: recipe-parity CONTROL experiment (not a module ablation).
+# Baseline lineage: S24_pyramid_context_grouped_v1_metricfixed, with pyramid_context
+# turned OFF so this run isolates recipe/capacity effects; pyramid is re-added in V2-1.
+#
+# Hypothesis: MAT-BLAST trails nnU-Net (B9, mIoU-FG 0.838 vs 0.829) mainly because of
+# recipe, not architecture: 1.19M params at 256x256 with Dice-only loss versus ~30M params
+# at native resolution with Dice+CE. If V2-0 closes most of that gap, later modules
+# (V2-2 PointRend, V2-3 boundary branch, ...) are tested on a fair footing.
+#
+# Recipe changes relative to S24 (all supported by current code):
+#   - image_size 256 -> 384 (near-native; source images are ~391x355, loader resizes to a square)
+#   - base_channels 24 -> 48 (~4x parameters), residual bottleneck block (S37, best custom gain)
+#   - loss: Dice + CE (ce_weight 0.0 -> 1.0), matching nnU-Net's compound loss
+#   - dropout 0.2 -> 0.1 with the larger model (weight decay kept at 5e-4 for 199 train images)
+#   - patience 100 -> 150 to give the larger model room under the poly schedule
+#
+# PARITY ITEMS NOT YET SUPPORTED BY CODE (require implementation before this is true parity;
+# each must be added as an explicit config flag so a typo still raises):
+#   - 6-stage residual encoder with InstanceNorm (model currently fixed at 4 stages, BatchNorm)
+#   - deep supervision at every decoder level (currently 2 auxiliary heads)
+#   - nnU-Net augmentation: rot +-180, scale 0.7-1.4, elastic, gamma, noise, blur, low-res sim
+#     (current "default" policy = rot90 + flips + brightness scaling)
+#   - EMA of weights, foreground (ICM) patch oversampling, batch-level dice
+#   - non-square padding to 384x448 instead of square resize
+# Until those land, V2-0 results measure PARTIAL parity only and must be reported as such.
+seed: 0
+allow_random_split: false
+run_dir: runs/V2_0_recipe_parity_grouped_v1
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 384
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 48
+  dropout: 0.1
+  global_context: true
+  global_pool_size: 8
+  pyramid_context: false
+  residual_encoder_block: true
+  residual_expansion: 2
+  residual_dropout: 0.0
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+training:
+  epochs: 2000
+  batch_size: 8
+  num_workers: 2
+  lr: 0.0008
+  lr_policy: poly
+  poly_power: 0.9
+  weight_decay: 0.0005
+  patience: 150
+  monitor: miou_fg
+  monitor_mode: max

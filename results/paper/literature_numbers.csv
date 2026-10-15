@@ -1,0 +1,6 @@
+paper,venue_year,metric,value,split,notes
+I2C2Net,Sci Rep 2025,jaccard_5cls,85.33,image-level 199/50,aggregate incl. BG; no per-class; no std
+BTFormer,PLOS One 2025,jaccard_5cls,85.45,image-level 199/50,aggregate incl. BG; std 0.06 across runs
+MASS-Net,2022,jaccard_5cls,87.00,235-image variant 200/35,different dataset variant; per-class TE 79.08 ZP 84.69 ICM 85.88 BL 89.28 BG 96.07
+Blasto-Net,arXiv 2026,iou_te,78.89,image-level 174/37/37,per-class only; ICM 85.73; ZP 82.31
+BLAST-NET,ISBI 2019,dice_mean,91.0,unknown,mean Dice reported as 0.91

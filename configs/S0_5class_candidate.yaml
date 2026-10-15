@@ -1,0 +1,29 @@
+seed: 0
+allow_random_split: false
+run_dir: runs/S0_regularized
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_nested.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [icm, te, zp, bl]
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 16
+  dropout: 0.15
+  attention: false
+  multimodal: false
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  relation_weight: 0.0
+training:
+  epochs: 120
+  batch_size: 8
+  num_workers: 2
+  lr: 0.0002
+  weight_decay: 0.0005
+  patience: 15

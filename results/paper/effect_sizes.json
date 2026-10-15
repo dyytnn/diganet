@@ -1,0 +1,58 @@
+{
+  "definition": {
+    "dz": "mean(delta_i) / sd(delta_i) over seed-averaged per-image differences (Cohen's d for paired samples)",
+    "win_rate": "fraction of images on which the candidate's seed-averaged score exceeds the reference's"
+  },
+  "validation_50_images": {
+    "DiGA-Net+ - DiGA-Net": {
+      "n_images": 50,
+      "delta": 0.006880578390426109,
+      "dz": 0.5324720630137448,
+      "win_rate": 0.72
+    },
+    "nnU-Net - DiGA-Net": {
+      "n_images": 50,
+      "delta": 0.008874079865013812,
+      "dz": 0.25097479551437646,
+      "win_rate": 0.74
+    },
+    "nnU-Net - DiGA-Net+": {
+      "n_images": 50,
+      "delta": 0.0019935014745877046,
+      "dz": 0.059799733809088984,
+      "win_rate": 0.6
+    },
+    "DiGA-Net + boundary branch - DiGA-Net": {
+      "n_images": 50,
+      "delta": 0.00431562427017425,
+      "dz": 0.350389589625332,
+      "win_rate": 0.72
+    },
+    "DiGA-Net+ - U-Net": {
+      "n_images": 50,
+      "delta": 0.03762731205465064,
+      "dz": 0.8106597944304539,
+      "win_rate": 0.94
+    }
+  },
+  "cross_validation_199_clean_images": {
+    "DiGA-Net+ - DiGA-Net": {
+      "n_images": 199,
+      "delta": 0.002500941143862566,
+      "dz": 0.13603876256740333,
+      "win_rate": 0.5477386934673367
+    },
+    "nnU-Net - DiGA-Net+": {
+      "n_images": 199,
+      "delta": 0.004832234115057453,
+      "dz": 0.1624519888173097,
+      "win_rate": 0.6130653266331658
+    },
+    "nnU-Net - DiGA-Net": {
+      "n_images": 199,
+      "delta": 0.007333175258920019,
+      "dz": 0.24937246276032096,
+      "win_rate": 0.6130653266331658
+    }
+  }
+}

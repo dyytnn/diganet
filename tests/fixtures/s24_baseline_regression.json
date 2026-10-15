@@ -1,0 +1,29 @@
+{
+  "config": "configs/S24_pyramid_context_grouped_v1_metricfixed.yaml",
+  "base_channels_override": 4,
+  "model_seed": 1234,
+  "input_seed": 99,
+  "input_shape": [
+    1,
+    3,
+    32,
+    32
+  ],
+  "state_dict_keys_sha256": "f3c502873c2215eeaf52af419f742aee6440cda15a4b1b80e1878073d5f50430",
+  "n_state_dict_keys": 155,
+  "output_keys": [
+    "aux_logits_2",
+    "aux_logits_3",
+    "boundary",
+    "logits"
+  ],
+  "logits_sum": 1078.4067852795124,
+  "logits_abs_sum": 2089.7692572772503,
+  "logits_first5": [
+    0.4757988452911377,
+    0.47574517130851746,
+    0.4766905605792999,
+    0.476336807012558,
+    0.4767678678035736
+  ]
+}

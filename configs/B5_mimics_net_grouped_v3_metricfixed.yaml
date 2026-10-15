@@ -1,0 +1,39 @@
+# B5-v3: metric-correct grouped-split restart of the MiMics-Net reproduction.
+# Architecture, deterministic paper augmentation, optimiser, and matched update
+# budget follow B5_mimics_net_repro_v2; only the common split/run protocol changes.
+seed: 0
+allow_random_split: false
+run_dir: runs/B5_mimics_net_grouped_v3_metricfixed
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 400
+  num_classes: 5
+  in_channels: 1
+  mask_classes: [zp, te, bl, icm]
+  augmentation: mimics
+  augmentation_repeats: 16
+model:
+  name: mimics_net
+  in_channels: 1
+  num_classes: 5
+  base_channels: 24
+  groups: 4
+  gabor_kernel_size: 9
+  gabor_sigma: 2.0
+  gabor_wavelength: 5.0
+  gabor_gamma: 0.5
+loss:
+  name: mimics_generalized_dice
+training:
+  epochs: 64
+  batch_size: 4
+  num_workers: 2
+  optimizer: adam
+  lr: 0.001
+  weight_decay: 0.0005
+  lr_policy: constant
+  patience: 64
+  monitor: miou_fg
+  monitor_mode: max

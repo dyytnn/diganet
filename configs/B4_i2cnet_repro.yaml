@@ -1,0 +1,35 @@
+# B4: faithful I2CNet (IJCAI 2022) reimplementation; source_nested is the
+# existing 199/50 image split. Only paper architecture/loss/DA differ.
+# Hypothesis: intra/inter-class context resolves nested anatomy confusion.
+seed: 0
+allow_random_split: false
+run_dir: runs/B4_i2cnet_repro
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_nested.json
+  image_size: 256
+  num_classes: 5
+  in_channels: 1
+  mask_classes: [zp, te, bl, icm]
+  augmentation: paper
+model:
+  name: i2cnet
+  in_channels: 1
+  num_classes: 5
+  channels: [16, 24, 40, 64, 96]
+  relation_weights: [1.0, 2.0, 1.0, 1.0]
+loss:
+  name: i2cnet_ce
+training:
+  epochs: 2000
+  batch_size: 8
+  num_workers: 2
+  optimizer: adam
+  lr: 0.0001
+  weight_decay: 0.00001
+  lr_policy: poly
+  poly_power: 0.9
+  patience: 2000
+  monitor: mdice_fg
+  monitor_mode: max

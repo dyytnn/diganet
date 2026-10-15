@@ -1,0 +1,56 @@
+# S46-v1: inherits S24_pyramid_context_grouped_v1_metricfixed.
+# Sole architecture change: faithful PointRend head (uncertainty-biased point sampling on the
+# half-resolution deep-supervision head, point MLP over fine decoder features + coarse logits,
+# subdivision inference). Unlike L17/S43 (dense gated proxy) this is the real point-sampling
+# method; uncertainty is restricted to ZP/TE/ICM.
+# Hypothesis: refining only the most uncertain boundary points improves TE/ICM boundary
+# accuracy (HD95, Boundary-F) without touching interiors.
+seed: 0
+allow_random_split: false
+run_dir: runs/S46_matblast_pointrend_faithful_grouped_v1
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 24
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  pyramid_context: true
+  pyramid_dilations: [1, 2, 4, 8]
+  pyramid_reduction: 4
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+  pointrend: true
+  pointrend_coarse_level: 2
+  pointrend_num_points: 2048
+  pointrend_oversample_ratio: 3.0
+  pointrend_importance_sample_ratio: 0.75
+  pointrend_mlp_hidden: 256
+  pointrend_mlp_layers: 3
+  pointrend_classes_of_interest: [1, 2, 4]
+  pointrend_subdivision_steps: 2
+  pointrend_subdivision_num_points: 8192
+loss:
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+  point_loss_weight: 1.0
+training: {epochs: 2000, batch_size: 8, num_workers: 2, lr: 0.0008, lr_policy: poly, poly_power: 0.9,
+  weight_decay: 0.0005, patience: 100, monitor: miou_fg, monitor_mode: max}

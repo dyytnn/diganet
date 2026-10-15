@@ -1,0 +1,52 @@
+# V2-1: inherits V2_0_recipe_parity_grouped_v1.
+# Sole change: backbone matblast_unet (4 stages, BatchNorm, ~10M) -> matblast_v2
+# (6 stages, residual blocks, InstanceNorm+LeakyReLU, strided-conv downsampling,
+# deep supervision at all decoder levels; ~25M params). Because the new backbone
+# emits aux_logits_2..5, loss.deep_supervision_weights is required here (1/2,1/4,1/8,1/16,
+# normalised) - it is inseparable from the backbone change and stated as such.
+# Hypothesis: nnU-Net's structural recipe (depth, residual blocks, instance norm)
+# is what V2-0 lacked; if V2-1 stops overfitting where V2-0 did, structure matters.
+seed: 0
+allow_random_split: false
+run_dir: runs/V2_1_backbone_v2_grouped_v1
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 384
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_v2
+  in_channels: 3
+  num_stages: 6
+  features_per_stage: [32, 64, 128, 256, 384, 384]
+  encoder_blocks_per_stage: 2
+  decoder_blocks_per_stage: 2
+  conv_block: residual
+  norm: instance
+  activation: leaky_relu
+  leaky_relu_slope: 0.01
+  downsample: strided_conv
+  dropout: 0.1
+  deep_supervision: true
+  pyramid_context: false
+  global_context: true
+  global_pool_size: 8
+loss:
+  ce_weight: 1.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+  deep_supervision_weights: [0.5, 0.25, 0.125, 0.0625]
+  deep_supervision_normalize: true
+  aux_loss_weight: 1.0
+training: {epochs: 2000, batch_size: 8, num_workers: 2, lr: 0.0008, lr_policy: poly, poly_power: 0.9,
+  weight_decay: 0.0005, patience: 150, monitor: miou_fg, monitor_mode: max}

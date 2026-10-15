@@ -1,0 +1,63 @@
+{
+  "n_images": 50,
+  "n_methods": 65,
+  "class": "TE",
+  "test1_variance_decomposition": {
+    "image": 0.7839692758581793,
+    "method": 0.06518031359691717,
+    "residual": 0.15085041054490356,
+    "image_ci": [
+      0.6721689684715392,
+      0.864058409923938
+    ],
+    "method_ci": [
+      0.0201523699877019,
+      0.14624750932371972
+    ],
+    "verdict": "image-dominated"
+  },
+  "test2_rank_agreement": {
+    "median_spearman": 0.8720768307322929,
+    "iqr": [
+      0.8357022809123649,
+      0.9030252100840336
+    ],
+    "n_pairs": 2080,
+    "verdict": "methods fail on the same images"
+  },
+  "test3_oracle_bound": {
+    "curve": {
+      "1": 0.7596739901383718,
+      "2": 0.7726513927976291,
+      "3": 0.7793558176815509,
+      "5": 0.78579708233277,
+      "10": 0.7930635742763679,
+      "20": 0.799878272463878,
+      "40": 0.8055889141062894,
+      "65": 0.809997139374415
+    },
+    "mean_over_methods": 0.758634943329371,
+    "oracle_gain": 0.050323149236043196,
+    "verdict": "oracle saturates far from 1.0"
+  },
+  "test4_agreement_asymmetry": {
+    "method_method": [
+      0.8009724005958485,
+      0.8724685585762237
+    ],
+    "method_reference": [
+      0.7366619961954206,
+      0.7835036568501639
+    ],
+    "verdict": "methods resemble each other more than the reference"
+  },
+  "test5_reference_perturbation": {
+    "self_overlap_by_shift_px": {
+      "1": 0.8915323619727186,
+      "2": 0.7969808347156185,
+      "3": 0.7130106948749451
+    },
+    "verdict": "compare the published spread of the field with this band"
+  },
+  "tests_indicating_annotation_limit": 4
+}

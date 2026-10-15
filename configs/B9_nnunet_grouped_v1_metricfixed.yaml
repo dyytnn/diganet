@@ -1,0 +1,18 @@
+# B9-v1: official nnU-Net-v2 2D planner/trainer on the common grouped split.
+# The source split is converted to nnU-Net's required case identifiers without
+# changing membership; the official planner chooses its own patch geometry.
+seed: 0
+split: data/splits/source_grouped_v1.json
+dataset: Dataset601_MATBLAST
+configuration: 2d
+fold: 0
+trainer: nnUNetTrainer
+data:
+  input_modality: grayscale_brightfield
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  source_converter: scripts/prepare_nnunet_dataset.py
+training:
+  epochs: 1000
+  seeds: [0, 1, 2]
+  deterministic: true

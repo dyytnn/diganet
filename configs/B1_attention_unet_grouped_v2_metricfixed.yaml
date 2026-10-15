@@ -1,0 +1,42 @@
+# B1-v2: B0-v2 with the established attention-U-Net baseline enabled only.
+# Hypothesis: bottleneck self-attention improves global embryo context.
+seed: 0
+allow_random_split: false
+run_dir: runs/B1_attention_unet_grouped_v2_metricfixed
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  in_channels: 3
+  mask_classes: [zp, te, bl, icm]
+  augmentation: default
+model:
+  name: attention_unet
+  in_channels: 3
+  num_classes: 5
+  base_channels: 24
+  dropout: 0.2
+loss:
+  name: combined
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  relation_weight: 0.0
+  class_boundary_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  overlap_metric: jaccard
+  overlap_include_background: true
+training:
+  epochs: 2000
+  batch_size: 8
+  num_workers: 2
+  optimizer: adam
+  lr: 0.0008
+  lr_policy: poly
+  poly_power: 0.9
+  weight_decay: 0.0005
+  patience: 100
+  monitor: miou_fg
+  monitor_mode: max

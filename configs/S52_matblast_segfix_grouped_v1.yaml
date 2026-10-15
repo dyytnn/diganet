@@ -1,0 +1,54 @@
+# S52-v1: inherits S24_pyramid_context_grouped_v1_metricfixed.
+# Sole architecture change: SegFix-inspired boundary + 8-way direction heads on the finest
+# decoder features; at inference, pixels predicted as boundary take the logits of the interior
+# pixel reached by walking 2 px along the predicted direction (2 iterations). Evaluated as a
+# model-agnostic refinement / post-processing BASELINE. Inspired/proxy: the original trains a
+# separate distance-transform network; here directions are quantised to 8 neighbours and the
+# heads share the segmentation decoder.
+# Hypothesis: relabelling unreliable boundary pixels from the interior reduces HD95 without
+# changing the interior prediction.
+seed: 0
+allow_random_split: false
+run_dir: runs/S52_matblast_segfix_grouped_v1
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 24
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  pyramid_context: true
+  pyramid_dilations: [1, 2, 4, 8]
+  pyramid_reduction: 4
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+  segfix: true
+  segfix_hidden_channels: 32
+  segfix_offset_px: 2
+  segfix_steps: 2
+  segfix_boundary_threshold: 0.5
+loss:
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+  segfix_loss_weight: 0.5
+  segfix_offset_px: 2
+training: {epochs: 2000, batch_size: 8, num_workers: 2, lr: 0.0008, lr_policy: poly, poly_power: 0.9,
+  weight_decay: 0.0005, patience: 100, monitor: miou_fg, monitor_mode: max}

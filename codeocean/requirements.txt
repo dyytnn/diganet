@@ -1,0 +1,16 @@
+# Pinned to the versions the published figures were produced with (Python 3.11.7).
+# Paste these into the Code Ocean Environment editor (pip section), or keep them here
+# and let environment/postInstall run `pip install -r /code/codeocean/requirements.txt`.
+numpy==1.26.4
+pandas==2.3.1
+matplotlib==3.9.2
+scipy==1.11.4
+scikit-image==0.24.0
+statsmodels==0.14.6
+opencv-python-headless==4.10.0.84
+Pillow==10.4.0
+PyYAML==6.0.2
+ml-collections==1.1.0
+zstandard==0.24.0
+# CPU build: the capsule only counts parameters and measures cost, it does not train.
+torch==2.0.1

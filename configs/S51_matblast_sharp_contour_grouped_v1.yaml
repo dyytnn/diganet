@@ -1,0 +1,59 @@
+# S51-v1: inherits S24_pyramid_context_grouped_v1_metricfixed.
+# Sole architecture change: SharpContour-style iterative offset update - vertices of per-class
+# polar contours move by at most 2 px per iteration (tanh-bounded) towards the boundary as
+# predicted from local features, 3 iterations. Used only for ZP/TE/ICM whose contour
+# representation is plausible.
+# LIMITATION: polar contours assume star-shaped ZP/TE/ICM regions around their centroid;
+# hatching, zona-ablated and fragmented-TE embryos violate this. Geometry-oriented BASELINE
+# (inspired, not a faithful reproduction of the instance-level method).
+seed: 0
+allow_random_split: false
+run_dir: runs/S51_matblast_sharp_contour_grouped_v1
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 24
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  pyramid_context: true
+  pyramid_dilations: [1, 2, 4, 8]
+  pyramid_reduction: 4
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+  contour_refiner: sharp
+  contour_classes_of_interest: [1, 2, 4]
+  contour_num_vertices: 64
+  contour_iterations: 3
+  contour_hidden_channels: 64
+  contour_step_px: 2.0
+  contour_ray_steps: 64
+  contour_max_radius: 0.75
+  contour_logit_boost: 2.0
+loss:
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+  contour_loss_weight: 1.0
+  contour_classes_of_interest: [1, 2, 4]
+  contour_ray_steps: 64
+  contour_max_radius: 0.75
+training: {epochs: 2000, batch_size: 8, num_workers: 2, lr: 0.0008, lr_policy: poly, poly_power: 0.9,
+  weight_decay: 0.0005, patience: 100, monitor: miou_fg, monitor_mode: max}

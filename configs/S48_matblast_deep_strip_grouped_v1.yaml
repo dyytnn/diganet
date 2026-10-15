@@ -1,0 +1,56 @@
+# S48-v1: inherits S24_pyramid_context_grouped_v1_metricfixed.
+# Sole architecture change: DeepStrip-inspired strip refinement - uncertain boundary pixels of
+# ZP/TE/ICM are unfolded into 9-sample strips along the local probability-gradient normal,
+# refined with 1-D convolutions, and the strip centre label is rewritten. Inspired/proxy: the
+# original DeepStrip crops and re-renders boundary regions; here strips are grid-sampled at full
+# resolution. The point-wise cross-entropy (loss.point_loss_weight) supervises strip centres.
+# Hypothesis: normal-aligned context sharpens thin TE/ZP rings; check TE continuity and ZP
+# thickness in the extended metrics alongside HD95/Boundary-F.
+seed: 0
+allow_random_split: false
+run_dir: runs/S48_matblast_deep_strip_grouped_v1
+data:
+  image_dir: dataset/source/images
+  mask_root: dataset/source/masks
+  split_json: data/splits/source_grouped_v1.json
+  image_size: 256
+  num_classes: 5
+  mask_classes: [zp, te, bl, icm]
+  augment: true
+model:
+  name: matblast_unet
+  in_channels: 3
+  base_channels: 24
+  dropout: 0.2
+  global_context: true
+  global_pool_size: 8
+  pyramid_context: true
+  pyramid_dilations: [1, 2, 4, 8]
+  pyramid_reduction: 4
+  attention: false
+  multimodal: false
+  deep_supervision: true
+  class_boundary: false
+  deep_strip: true
+  deep_strip_num_strips: 1024
+  deep_strip_length: 9
+  deep_strip_spacing_px: 1.0
+  deep_strip_hidden_channels: 64
+  deep_strip_classes_of_interest: [1, 2, 4]
+  deep_strip_oversample_ratio: 3.0
+  deep_strip_importance_sample_ratio: 0.75
+  deep_strip_inference_num_strips: 4096
+loss:
+  ce_weight: 0.0
+  dice_weight: 1.0
+  boundary_weight: 0.0
+  class_boundary_weight: 0.0
+  relation_weight: 0.0
+  class_weights: [1.0, 1.0, 1.0, 1.0, 1.0]
+  tversky_beta: null
+  label_smoothing: 0.0
+  overlap_metric: jaccard
+  overlap_include_background: true
+  point_loss_weight: 1.0
+training: {epochs: 2000, batch_size: 8, num_workers: 2, lr: 0.0008, lr_policy: poly, poly_power: 0.9,
+  weight_decay: 0.0005, patience: 100, monitor: miou_fg, monitor_mode: max}
